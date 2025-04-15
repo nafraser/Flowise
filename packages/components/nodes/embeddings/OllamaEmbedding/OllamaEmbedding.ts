@@ -64,7 +64,15 @@ class OllamaEmbedding_Embeddings implements INode {
                 default: true,
                 optional: true,
                 additionalParams: true
-            }
+            },
+	    {
+		label: 'Stop Words',
+		name: 'stop',
+		type: 'string',
+		description: 'Comma-separated list of word to ignore during embedding',
+	        optional: true,
+                additionalParams: true
+	    }
         ]
     }
 
@@ -74,6 +82,7 @@ class OllamaEmbedding_Embeddings implements INode {
         const numThread = nodeData.inputs?.numThread as string
         const numGpu = nodeData.inputs?.numGpu as string
         const useMMap = nodeData.inputs?.useMMap as boolean
+	const stop = nodeData.inputs?.stop as string
 
         const obj = {
             model: modelName,
@@ -84,6 +93,10 @@ class OllamaEmbedding_Embeddings implements INode {
         const requestOptions: OllamaInput = {}
         if (numThread) requestOptions.numThread = parseFloat(numThread)
         if (numGpu) requestOptions.numGpu = parseFloat(numGpu)
+
+        if (stop && stop.trim() !== '') {
+           requestOptions.stop = stop.split(',').map(word => word.trim()).filter(Boolean)
+        }
 
         // default useMMap to true
         requestOptions.useMMap = useMMap === undefined ? true : useMMap
